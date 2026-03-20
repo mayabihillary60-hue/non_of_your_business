@@ -23,34 +23,9 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython
     
-    - name: Create main.py
-      run: |
-        mkdir -p src
-        cat > src/main.py << 'EOF'
-from kivy.app import App
-from kivy.uix.label import Label
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.core.window import Window
-
-class VideoEditorApp(App):
-    def build(self):
-        Window.size = (400, 600)
-        layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
-        
-        label = Label(text='Video Editor', font_size='24sp')
-        layout.add_widget(label)
-        
-        btn = Button(text='Test Button', size_hint_y=0.2)
-        layout.add_widget(btn)
-        
-        return layout
-
-if __name__ == '__main__':
-    VideoEditorApp().run()
-EOF
-        touch src/__init__.py
     
+
+
     - name: Create buildozer.spec
       run: |
         cat > buildozer.spec << 'EOF'
