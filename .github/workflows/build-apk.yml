@@ -1,76 +1,84 @@
-name: Build Android APK
+name: Build APK
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
+    - uses: actions/checkout@v4
+    
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     
-    - name: Prepare build environment
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          git \
-          zip \
-          unzip \
-          openjdk-17-jdk \
+          python3-dev \
           python3-pip \
+          python3-venv \
+          git \
+          wget \
+          unzip \
+          zip \
+          openjdk-17-jdk \
           autoconf \
           libtool \
-          pkg-config \
-          zlib1g-dev \
-          libncurses5-dev \
-          libncursesw5-dev \
-          libtinfo5 \
           cmake \
-          libffi-dev \
+          pkg-config \
           libssl-dev \
-          wget
+          libffi-dev
     
-    - name: Create buildozer.spec
+    - name: Install python-for-android
       run: |
-        cat > buildozer.spec << 'EOF'
-[app]
-title = Video Editor
-package.name = videoeditor
-package.domain = com.yourname
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,txt
-requirements = python3,kivy==2.2.1,moviepy==1.0.3,numpy==1.24.3,Pillow==10.0.0,android
-version = 0.1
-orientation = portrait
-osx.python_version = 3
-osx.kivy_version = 2.2.1
-fullscreen = 0
-
-[buildozer]
-log_level = 2
-warn_on_root = 1
+        pip install python-for-android
+    
+    - name: Create AndroidManifest.xml
+      run: |
+        mkdir -p .buildozer/android/platform
+        cat > .buildozer/android/platform/AndroidManifest.xml << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yourname.videoeditor"
+    android:versionCode="1"
+    android:versionName="0.1">
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="31"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <application android:label="Video Editor" android:icon="@mipmap/icon">
+        <activity android:name="org.kivy.android.PythonActivity"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
 EOF
-
-    - name: Build with Buildozer Docker
+    
+    - name: Build APK with p4a
       run: |
-        docker run --interactive --tty --rm \
-          --volume $PWD:/home/user/hostcwd \
-          --volume ~/.buildozer:/home/user/.buildozer \
-          kivy/buildozer -v android debug
+        p4a apk --private . \
+          --package=com.yourname.videoeditor \
+          --name="Video Editor" \
+          --version=0.1 \
+          --bootstrap=sdl2 \
+          --requirements=python3,kivy,moviepy,numpy,Pillow,android \
+          --permission=READ_EXTERNAL_STORAGE \
+          --permission=WRITE_EXTERNAL_STORAGE \
+          --arch=armeabi-v7a \
+          --arch=arm64-v8a \
+          --release
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: video-editor-apk
-        path: bin/*.apk
-        if-no-files-found: error
+        path: *.apk
