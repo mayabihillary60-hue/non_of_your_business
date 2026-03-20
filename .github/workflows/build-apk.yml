@@ -47,7 +47,7 @@ jobs:
           --name="Video Editor" \
           --version=0.1 \
           --bootstrap=sdl2 \
-          --requirements=python3,kivy,moviepy,numpy,Pillow,android \
+          --requirements="python3,kivy,moviepy,numpy,Pillow,android" \
           --permission=READ_EXTERNAL_STORAGE \
           --permission=WRITE_EXTERNAL_STORAGE \
           --arch=armeabi-v7a \
