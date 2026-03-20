@@ -5,32 +5,72 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
     
-    - name: Install dependencies
+    - name: Prepare build environment
       run: |
-        sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev
-        pip install --upgrade pip
-        pip install cython virtualenv
-        pip install buildozer
+        sudo apt-get update
+        sudo apt-get install -y \
+          git \
+          zip \
+          unzip \
+          openjdk-17-jdk \
+          python3-pip \
+          autoconf \
+          libtool \
+          pkg-config \
+          zlib1g-dev \
+          libncurses5-dev \
+          libncursesw5-dev \
+          libtinfo5 \
+          cmake \
+          libffi-dev \
+          libssl-dev \
+          wget
     
-    - name: Build with buildozer
+    - name: Create buildozer.spec
       run: |
-        buildozer android debug
+        cat > buildozer.spec << 'EOF'
+[app]
+title = Video Editor
+package.name = videoeditor
+package.domain = com.yourname
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas,txt
+requirements = python3,kivy==2.2.1,moviepy==1.0.3,numpy==1.24.3,Pillow==10.0.0,android
+version = 0.1
+orientation = portrait
+osx.python_version = 3
+osx.kivy_version = 2.2.1
+fullscreen = 0
+
+[buildozer]
+log_level = 2
+warn_on_root = 1
+EOF
+
+    - name: Build with Buildozer Docker
+      run: |
+        docker run --interactive --tty --rm \
+          --volume $PWD:/home/user/hostcwd \
+          --volume ~/.buildozer:/home/user/.buildozer \
+          kivy/buildozer -v android debug
     
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: video-editor-apk
         path: bin/*.apk
+        if-no-files-found: error
