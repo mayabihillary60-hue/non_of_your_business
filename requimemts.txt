@@ -1,6 +1,6 @@
-python3
-kivy
-moviepy
-numpy
-Pillow
-android
+kivy==2.2.1
+moviepy==1.0.3
+numpy==1.24.3
+Pillow==10.0.0
+pyjnius==1.5.0
+android==1.0
