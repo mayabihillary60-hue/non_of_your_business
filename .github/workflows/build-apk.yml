@@ -40,52 +40,8 @@ jobs:
         pip install --upgrade pip
         pip install python-for-android cython virtualenv
     
-    - name: Create test main.py if not exists
-      run: |
-        mkdir -p src
-        if [ ! -f src/main.py ]; then
-          cat > src/main.py << 'EOF'
-from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.core.window import Window
-
-class VideoEditorApp(App):
-    def build(self):
-        Window.size = (400, 600)
-        layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
-        
-        title = Label(
-            text='Video Editor',
-            font_size='24sp',
-            size_hint_y=0.2,
-            color=(0.2, 0.6, 1, 1)
-        )
-        layout.add_widget(title)
-        
-        status = Label(
-            text='App is ready!',
-            font_size='18sp',
-            size_hint_y=0.2
-        )
-        layout.add_widget(status)
-        
-        btn = Button(
-            text='Click Me',
-            size_hint_y=0.1,
-            background_color=(0.2, 0.6, 1, 1)
-        )
-        layout.add_widget(btn)
-        
-        return layout
-
-if __name__ == '__main__':
-    VideoEditorApp().run()
-EOF
-        fi
-        
-        touch src/__init__.py
+    
+      
     
     - name: Set up Android SDK
       run: |
