@@ -38,13 +38,27 @@ jobs:
       run: |
         pip install python-for-android
     
-    - name: Install Android SDK components
-  run: |
-    # Accept licenses
-    yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-    
-    # Install API 34
-    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
+    name: Android CI
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+      
     
     - name: Build APK with p4a
       run: |
