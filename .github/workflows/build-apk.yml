@@ -38,7 +38,11 @@ jobs:
       run: |
         pip install python-for-android
     
+    - name: Install Android SDK components
+      run: |
+        yes | $ANDROID_HOME/. cmdline-tools/latest/bin/sdkmanager --licenses
     
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
     
     - name: Build APK with p4a
       run: |
