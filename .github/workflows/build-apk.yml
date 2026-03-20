@@ -40,9 +40,18 @@ jobs:
     
     - name: Install Android SDK components
       run: |
-        yes | $ANDROID_HOME/. cmdline-tools/latest/bin/sdkmanager --licenses
+        export ANDROID_HOME=/usr/local/lib/android/sdk
+        echo "Android SDK path: $ANDROID_HOME"
     
+    # List available cmdline-tools
+        ls -la $ANDROID_HOME/cmdline-tools/
+    
+    # Accept licenses
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+    
+    # Install required components
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0"
     
     - name: Build APK with p4a
       run: |
