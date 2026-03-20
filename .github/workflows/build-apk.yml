@@ -63,6 +63,7 @@ jobs:
       run: |
         export ANDROID_HOME=/usr/local/lib/android/sdk
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+        export ANDROID_API=34
         
         p4a apk --private . \
           --package=com.yourname.videoeditor \
