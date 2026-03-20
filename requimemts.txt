@@ -1,0 +1,6 @@
+python3
+kivy
+moviepy
+numpy
+Pillow
+android
