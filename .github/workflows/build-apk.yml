@@ -39,14 +39,12 @@ jobs:
         pip install python-for-android
     
     - name: Install Android SDK components
-      run: |
-        export ANDROID_HOME=/usr/local/lib/android/sdk
-        export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+  run: |
+    # Accept licenses
+    yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
     
-    # Now sdkmanager should be in PATH
-         yes | sdkmanager --licenses
-         sdkmanager "platforms;android-34"
-         sdkmanager "build-tools;34.0.0"
+    # Install API 34
+    $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
     
     - name: Build APK with p4a
       run: |
